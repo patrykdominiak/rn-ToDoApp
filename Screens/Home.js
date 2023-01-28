@@ -1,166 +1,177 @@
-import { View, Text, FlatList, StyleSheet, TextInput, TouchableOpacity, Keyboard, Pressable } from 'react-native'
-import React, { useState, useEffect } from 'react'
-// import { firebase } from '../config';
-import { FonAwesome } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Button,
+  ActivityIndicator,
+} from "react-native";
+import { useState, useEffect, useContext } from "react";
+import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+
+import Checkbox from "expo-checkbox";
+
+import { AppContext } from "../Context/AppContext";
 
 const Home = () => {
-    const [todos, setTodos] = useState([]);
-    const todoRef = firebase.firestore().collection('todos');
-    const [addData, setAddData] = useState('');
-    const navigation = useNavigation();
-adad
-    // fetching or read data from azure
-    useEffect(() => {
-        todoRef
-        .orderBy('createdAt', 'desc')
-        .onSnapShot(
-            querySnapshot => {
-                const todos = []
-                querySnapshot.forEach((doc) => {
-                    const {heading} = doc.data()
-                    todos.push({
-                        id: doc.id,
-                        heading,
-                    })
-                })
-                setTodos(todos)
-            }
-        )
-    }, [])
+  const [addData, setAddData] = useState("");
+  const navigation = useNavigation();
 
-    // delete a todo from azure
-   const deleteTodo = (todos) => {
-        todoRef
-        .doc(todos.id)
-        .delete()
-        then(() => {
-            // show a successful alert
-            alert("Deleted Successfully")
-        })
-        .catch(error => {
-            alert(error);
-        })
-    }
-    // add a todo
-    const addTodo = () => {
-        // check if we have a todo
-        if (addData && addData.length > 0) {
-            // get timestamp
-            const timestamp = firebase.firestore.FieldValue.serverTimeStamp();
-            const data = {
-                heading: addData,
-                createdAt: timestamp
-            };
-            todoRef
-                .add(data)
-                .then(() => {
-                    setAddData('');
-                    // release keyboard
-                    Keyboard.dismiss();
-                })
-                .catch((error) => {
-                    alert(error); 
-                })
-        }
-    }
-    return (
-        <View style = {{flex:1}}>
-            <View style = {styles.formContainer}>
-                <TextInput 
-                    style = {styles.input}
-                    placeholder = 'Add a new task'
-                    placeholderTextColor = '#aaaaaa'
-                    onChangeText = {(heading) => setAddData(heading)}
-                    value = {addData}
-                    underlineColorAndroid = 'transparent'
-                    autoCapitalize = 'none'
-                />
-                <TouchableOpacity style = {styles.button} onPress={addTodo}>
-                    <Text style = {styles.buttonText}>Add</Text>
-                </TouchableOpacity>
+  const { addTask, getTodos, todoList, checkTask, loading } =
+    useContext(AppContext);
+
+  useEffect(() => {
+    getTodos();
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={styles.formContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Dodaj nowe zadanie"
+          placeholderTextColor="#aaaaaa"
+          onChangeText={(e) => setAddData(e)}
+          value={addData}
+          underlineColorAndroid="transparent"
+          autoCapitalize="none"
+        />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            addTask(addData);
+            setAddData("");
+          }}
+        >
+          <Text style={styles.buttonText}>Dodaj</Text>
+        </TouchableOpacity>
+      </View>
+      {todoList.length >= 1 ? (
+        <FlatList
+          data={todoList}
+          numColumns={1}
+          renderItem={({ item }) => (
+            <View>
+              <View style={styles.container}>
+                <View style={styles.innerContainer}>
+                  <Checkbox
+                    style={{ marginRight: 10 }}
+                    value={item.isDone}
+                    onValueChange={() => checkTask(item)}
+                  />
+                  <Text
+                    style={[
+                      {
+                        textDecorationLine: `${
+                          item.isDone ? "line-through" : "unset"
+                        }`,
+                      },
+                      styles.itemHeading,
+                    ]}
+                  >
+                    {item.description}
+                  </Text>
+                </View>
+                <View style={{ display: "flex", flexDirection: "row" }}>
+                  <FontAwesome
+                    name="edit"
+                    color="green"
+                    onPress={() => {
+                      navigation.navigate("Detail", item);
+                    }}
+                    style={[styles.todoIcon, { marginRight: 15 }]}
+                  />
+                  <FontAwesome
+                    name="trash-o"
+                    color="red"
+                    onPress={() => console.log("delete")}
+                    style={styles.todoIcon}
+                  />
+                </View>
+              </View>
             </View>
-            <FlatList 
-                data = {todos}
-                numColumns = {1}
-                renderItem = {({item}) => (
-                    <View>
-                        <Pressable
-                            style = {styles.container}
-                            onPress = {() => navigation.navigate('Detail', {item})}
-                        >
-                            <FontAwesome 
-                                name = 'trash-o'
-                                color = 'red'
-                                onPress = {() => deleteTodo(item)}
-                                style = {styles.todoIcon}
-                            />
-                            <View style = {styles.innerContainer}>
-                                <Text style = {styles.itemHeading}>
-                                    {item.heading[0].toUpperCase() + item.heading.slice(1)}
-                                </Text>sdsad
-                            </View>
-                        </Pressable>
-                    </View>
-                )}
-            />
+          )}
+        />
+      ) : (
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: "bold",
+              color: "#C9C9C9",
+              fontSize: 20,
+              marginTop: 20,
+            }}
+          >
+            Nie dodałeś jeszcze żadnych zadań
+          </Text>
         </View>
-    )
-}
+      )}
+      {loading && <ActivityIndicator size="large" />}
+    </View>
+  );
+};
 
-export default Home
+export default Home;
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#e5e5e5',
-        padding: 15,
-        borderRadius: 15,
-        margin: 5,
-        marginHorizontal: 10,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    innerContainer:{
-        alignItems: 'center',
-        flexDirection: 'column',
-        marginRight: 45
-    },
-    itemHeading:{
-        fontWeight: 'bold',
-        fontSize: 18,
-        marginRight: 22
-    },
-    formContainer:{
-        flexDirection: 'row',
-        height: 80,
-        marginLeft: 10,
-        marginRight: 10,
-        marginTop: 100
-    },
-    input:{
-        height: 48,
-        borderRadius: 5,
-        overflow: 'hidden',
-        backgroundColor: 'white',
-        paddingLeft: 16,
-        flex: 1,
-        marginRight: 5
-    },
-    button:{
-        height: 47,
-        borderRadius: 5,
-        backgroundColor: '#788eec',
-        width: 80,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 20
-    },
-    todoIcon: {
-        marginTop: 5,
-        fontSize: 20,
-        marginLeft: 14
-    }
-})
+  container: {
+    backgroundColor: "#e5e5e5",
+    padding: 15,
+    borderRadius: 15,
+    margin: 5,
+    marginHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  innerContainer: {
+    alignItems: "center",
+    justifyContent: "flex-start",
+    flexDirection: "row",
+  },
+  itemHeading: {
+    fontWeight: "bold",
+    fontSize: 18,
+    marginRight: 22,
+  },
+  formContainer: {
+    flexDirection: "row",
+    height: 80,
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 100,
+  },
+  input: {
+    height: 48,
+    borderRadius: 5,
+    overflow: "hidden",
+    backgroundColor: "white",
+    paddingLeft: 16,
+    flex: 1,
+    marginRight: 5,
+  },
+  button: {
+    height: 47,
+    borderRadius: 5,
+    backgroundColor: "#788eec",
+    width: 80,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 20,
+  },
+  todoIcon: {
+    fontSize: 30,
+  },
+});

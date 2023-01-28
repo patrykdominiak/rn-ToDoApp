@@ -1,66 +1,63 @@
-import { View, Text, StyleSheet, TextInput, Pressable } from 'react-native'
-import React, { useState } from 'react'
-// import { firebase } from '../config';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, TextInput, Pressable } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 
-const Detail = (route) => {
-    const todoRef = firebase.firestore().collection('todos');
-    const [textHeading, onChangeHeadingText] = useState(route.params.item.name);
-    const navigation = useNavigation();
+import { AppContext } from "../Context/AppContext";
+import { useNavigation } from "@react-navigation/native";
 
-    const updateTodo = () => {
-        if (textHeading && textHeading.lenght > 0) {
-            todoRef
-            .doc(route.params.item.id)
-            .update({
-                heading: textHeading,
-            }).then (() => {
-                navigation.navigate('Home')
-            }).catch((error) => {
-                alert(error.message)
-            })
-        }
-    }
-    <View style = {styles.container}>
-        <TextInput 
-            style = {styles.textField}
-            onChangeText = {onChangeHeadingText}
-            value = {textHeading}
-            placeholder = "Update task"
-        />
-        <Pressable 
-            style = {styles.buttonUpdate}
-            onPress = {() => {updateTodo()}}
-        >
-            <Text>UPDATE TASK</Text>
-        </Pressable>
+const Detail = ({ route }) => {
+  const navigation = useNavigation();
+
+  const { description, _id, added } = route.params;
+
+  const [textHeading, onChangeHeadingText] = useState(description);
+
+  const { updateTask } = useContext(AppContext);
+
+  return (
+    <View style={styles.container}>
+      <TextInput
+        style={styles.textField}
+        onChangeText={onChangeHeadingText}
+        value={textHeading}
+        placeholder="Update task"
+      />
+      <Text style={{ fontWeight: "bold" }}>Added: {added}</Text>
+      <Pressable
+        style={styles.buttonUpdate}
+        onPress={() => {
+          updateTask(item);
+        }}
+      >
+        <Text style={{ textTransform: "uppercase" }}>Edytuj zadanie</Text>
+      </Pressable>
     </View>
-}
+  );
+};
 
-export default Detail
+export default Detail;
 
 const styles = StyleSheet.create({
-    container: {
-        marginTop: 80,
-        marginLeft: 15,
-        marginRight: 15,
-    },
-    textField: {
-        marginBottom: 10,
-        padding: 10,
-        fontSize: 15,
-        color: '#000000',
-        backgroundColor: '#e0e0e0',
-        borderRadious: 5
-    },
-    buttonUpdate: {
-        marginTop: 25,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 32,
-        borderRadius: 4,
-        elevation: 10,
-        backgroundColor: '#0de065'
-    }
-})
+  container: {
+    marginTop: 80,
+    marginLeft: 15,
+    marginRight: 15,
+  },
+  textField: {
+    marginBottom: 10,
+    padding: 10,
+    fontSize: 15,
+    color: "#000000",
+    backgroundColor: "#e0e0e0",
+    borderRadius: 5,
+  },
+  buttonUpdate: {
+    marginTop: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 10,
+    backgroundColor: "#0de065",
+  },
+});
