@@ -7,7 +7,7 @@ const BACKEND_URL = "https://michal-patryk.azurewebsites.net/api/";
 
 const AppProvider = (props) => {
   const [todoList, setTodoList] = useState([]);
-  const [loading, setLoading] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const getTodos = () => {
     console.log("GET_LIST");
@@ -61,10 +61,37 @@ const AppProvider = (props) => {
   //  TODO
   const deleteTask = (id) => {
     console.log("DELETE", id);
+    setLoading(true);
+
+    axios
+      .delete(BACKEND_URL + "todos/" + id)
+      .then((res) => {
+        getTodos();
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log("error", e);
+        alert("Wystąpił błąd");
+        setLoading(false);
+      });
   };
 
-  const updateTask = (id) => {
-    console.log("UPDATE", id);
+  const updateTask = (id, value) => {
+    console.log("UPDATE", id, value);
+
+    setLoading(true);
+
+    axios
+      .put(BACKEND_URL + "todos/" + id, { description: value })
+      .then((res) => {
+        getTodos();
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log("error", e);
+        alert("Wystąpił błąd");
+        setLoading(false);
+      });
   };
 
   const storeObject = {

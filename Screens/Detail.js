@@ -25,7 +25,7 @@ const Detail = ({ route }) => {
       <Pressable
         style={styles.buttonUpdate}
         onPress={() => {
-          updateTask(_id);
+          updateTask(_id, textHeading);
         }}
       >
         <Text style={{ textTransform: "uppercase" }}>Edytuj zadanie</Text>
