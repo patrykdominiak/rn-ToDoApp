@@ -8,6 +8,9 @@ const BACKEND_URL = "https://michal-patryk.azurewebsites.net/api/";
 const AppProvider = (props) => {
   const [todoList, setTodoList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [userToken, setUserToken] = useState(
+    "c01a6229-80cd-4654-bcf1-c5d1ea1590db"
+  );
 
   const getTodos = () => {
     console.log("GET_LIST");
@@ -15,7 +18,7 @@ const AppProvider = (props) => {
     setLoading(true);
 
     axios
-      .get(BACKEND_URL + "todos")
+      .get(BACKEND_URL + "todos/" + userToken)
       .then((res) => {
         setTodoList(res.data);
         setLoading(false);
@@ -58,7 +61,6 @@ const AppProvider = (props) => {
       });
   };
 
-  //  TODO
   const deleteTask = (id) => {
     console.log("DELETE", id);
     setLoading(true);
@@ -92,6 +94,11 @@ const AppProvider = (props) => {
         alert("Wystąpił błąd");
         setLoading(false);
       });
+  };
+
+  const loginUser = (login, password) => {
+    console.log("LOGIN", login, password);
+    setUserToken("asd");
   };
 
   const storeObject = {
