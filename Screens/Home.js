@@ -5,8 +5,8 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Button,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useState, useEffect, useContext } from "react";
 import { FontAwesome } from "@expo/vector-icons";
@@ -20,7 +20,7 @@ const Home = () => {
   const [addData, setAddData] = useState("");
   const navigation = useNavigation();
 
-  const { addTask, getTodos, todoList, checkTask, loading } =
+  const { addTask, getTodos, todoList, checkTask, loading, deleteTask } =
     useContext(AppContext);
 
   useEffect(() => {
@@ -87,7 +87,18 @@ const Home = () => {
                   <FontAwesome
                     name="trash-o"
                     color="red"
-                    onPress={() => console.log("delete")}
+                    onPress={() =>
+                      Alert.alert("Uwaga!", "Tej akcji nie można cofnąć", [
+                        {
+                          text: "Anuluj",
+                          onPress: () => console.log("cancel"),
+                        },
+                        {
+                          text: "Usuń",
+                          onPress: () => deleteTask(item._id),
+                        },
+                      ])
+                    }
                     style={styles.todoIcon}
                   />
                 </View>
