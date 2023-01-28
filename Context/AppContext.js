@@ -59,12 +59,12 @@ const AppProvider = (props) => {
   };
 
   //  TODO
-  const deleteTask = () => {
-    console.log("DELETE");
+  const deleteTask = (id) => {
+    console.log("DELETE", id);
   };
 
-  const updateTask = (item) => {
-    console.log("UPDATE", item);
+  const updateTask = (id) => {
+    console.log("UPDATE", id);
   };
 
   const storeObject = {
